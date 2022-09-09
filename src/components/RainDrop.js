@@ -5,16 +5,14 @@ export class DropOnAir {
     this.y = y;
     this.speed = speed;
     this.length = length;
-    this.draw();
   }
 
   draw(context) {
-    context.beginPath();
     context.strokeStyle = "#dfdfdf";
+    context.beginPath();
     context.moveTo(this.x, this.y);
     context.lineTo(this.x, this.y + this.length);
     context.stroke();
-    context.closePath();
   }
 }
 
