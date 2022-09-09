@@ -1,7 +1,6 @@
 import { useRef, useEffect } from "react";
 
 export const useCanvas = (canvasWidth, canvasHeight, animate) => {
-  console.log(canvasWidth, canvasHeight);
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -20,9 +19,16 @@ export const useCanvas = (canvasWidth, canvasHeight, animate) => {
     };
     setCanvas();
 
-    if (context) animate(context);
-    // eslint-disable-next-line
-  }, [canvasWidth, canvasHeight]);
+    let requestId;
+    const requestAnimation = () => {
+      requestId = window.requestAnimationFrame(requestAnimation);
+      if (context) animate(context);
+    };
+    requestAnimation();
+    return () => {
+      window.cancelAnimationFrame(requestId);
+    };
+  }, [canvasWidth, canvasHeight, animate]);
 
   return canvasRef;
 };

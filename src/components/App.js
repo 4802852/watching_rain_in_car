@@ -6,8 +6,15 @@ import RainInCar from "./RainInCar";
 function App() {
   const appRef = useRef(null);
   const clientRect = useClientWidthHeight(appRef);
-  const canvasWidth = clientRect.Width * 0.5;
-  const canvasHeight = clientRect.Height * 0.5;
+  let canvasWidth, canvasHeight;
+
+  if (clientRect.Width >= (clientRect.Height * 16) / 9) {
+    canvasWidth = (clientRect.Height * 16) / 9;
+    canvasHeight = clientRect.Height;
+  } else {
+    canvasWidth = clientRect.Width;
+    canvasHeight = (clientRect.Width / 16) * 9;
+  }
 
   return (
     <div className="App" ref={appRef}>
