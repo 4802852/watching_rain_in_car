@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { useCanvas } from "../hooks/useCanvas";
-import { DropOnAir } from "./RainDrop";
+import { DropOnAir, DropOnWindow } from "./RainDrop";
 import Wiper from "./Wiper";
 
 const RainInCar = ({ canvasWidth, canvasHeight }) => {
@@ -11,26 +11,26 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
   };
 
   // Wiper
-  const [IsWiping, setIsWiping] = useState(false);
-  const [WipeStart, setWipeStart] = useState(false);
+  let IsWiping = false;
+  let WipeStart = false;
 
   const wiperVelocity = 0.01;
-
   const wiper = new Wiper(canvasWidth, canvasHeight, wiperVelocity);
 
   const startWiping = () => {
-    if (!IsWiping) setWipeStart(true);
+    if (!IsWiping) WipeStart = true;
   };
 
   // RainDrop
   const drops = [];
-  let tempX, tempY, tempSpeed, tempLength;
-  for (let i = 0; i < 200; i++) {
-    tempX = Math.random() * canvasWidth;
-    tempY = Math.random() * canvasHeight;
-    tempSpeed = Math.random() * 3 + 1;
-    tempLength = Math.random() * 5 + 2;
-    drops.push(new DropOnAir(i, tempX, tempY, tempSpeed, tempLength));
+  for (let i = 0; i < (canvasWidth < 500 ? 50 : 100); i++) {
+    drops.push(new DropOnAir(i, canvasWidth, canvasHeight));
+  }
+
+  // RainDrop on Window
+  const windowDrops = [];
+  for (let i = 0; i < (canvasWidth < 500 ? 15 : 30); i++) {
+    windowDrops.push(new DropOnWindow(i, canvasWidth, canvasHeight));
   }
 
   // Animation Render
@@ -39,29 +39,18 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
     // Background
     fillBackground(context);
     // Rain Drop
-    drops.forEach((drop) => {
-      drop.y += drop.speed;
-      if (drop.y > canvasHeight) {
-        drop.y = 0;
-        drop.x = Math.random() * canvasWidth;
-        drop.speed = Math.random() * 3 + 1;
-        drop.length = Math.random() * 5 + 2;
-      }
-      drop.draw(context);
-    });
+    drops.forEach((drop) => drop.update(context));
     // Wiper Movement
     if (WipeStart) {
-      setIsWiping(true);
-      setWipeStart(false);
+      IsWiping = true;
+      WipeStart = false;
       setTimeout(() => {
-        setIsWiping(false);
+        IsWiping = false;
       }, ((0.4 * 4) / wiperVelocity / 60) * 1000);
     }
-    if (IsWiping) {
-      wiper.animate(context, wiperVelocity);
-    } else {
-      wiper.drawWiper(context);
-    }
+    let wiperData = wiper.animate(context, IsWiping);
+    // Rain Drop on Window
+    windowDrops.forEach((drop) => drop.draw(context, wiperData));
   };
 
   const canvasRef = useCanvas(canvasWidth, canvasHeight, animate);
