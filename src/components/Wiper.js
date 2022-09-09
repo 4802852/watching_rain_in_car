@@ -1,13 +1,13 @@
 export class Wiper {
-  constructor(canvasWidth, canvasHeight, wiperVelocity) {
+  constructor(canvasWidth, canvasHeight, wiperVelocity, wiperLimit) {
     this.centerX = canvasWidth / 2;
     this.centerY = (canvasHeight / 9) * 18;
     this.minRadius = (canvasWidth / 16) * 11;
     this.maxRadius = (canvasWidth / 16) * 17;
-    this.wiperThickness = canvasWidth < 500 ? 6 : 10;
+    this.wiperThickness = canvasWidth / 80;
     this.VELOCITY = wiperVelocity;
     this.WIPERCOLOR = "rgb(0,0,0,0.5)";
-    this.LIMIT = 0.4;
+    this.LIMIT = wiperLimit;
     this.THETA = Math.PI / 2 - this.LIMIT;
     this.REVERSE = 1;
   }
@@ -45,6 +45,17 @@ export class Wiper {
       this.REVERSE = 1;
     }
     return wiperData;
+  }
+
+  windowdata() {
+    const data = {
+      centerX: this.centerX,
+      centerY: this.centerY,
+      minRadius: this.minRadius,
+      maxRadius: this.maxRadius,
+      THETA: this.THETA,
+    };
+    return data;
   }
 }
 
