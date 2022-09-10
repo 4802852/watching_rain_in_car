@@ -1,27 +1,32 @@
 export class DropOnWindow {
   constructor(index, canvasWidth, canvasHeight) {
+    // drop info
     this.index = index;
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
-    this.dropSize = canvasHeight / 100 >= 3 ? canvasHeight / 90 : 3;
+    this.minDropSize = canvasHeight / 100 >= 3 ? canvasHeight / 90 : 3;
+    this.intitialDropSize = this.minDropSize * 2;
     this.wiperThres = canvasWidth / 80;
     this.speedVar = canvasHeight / 500;
     this.minSpeed = canvasHeight / 400;
+    this.maxSpeed = Math.random() * this.speedVar + this.minSpeed;
+    this.acceration = 0.05;
+    // drop intial status
     this.x = Math.random() * this.canvasWidth;
     this.y = Math.random() * this.canvasHeight;
-    this.maxSpeed = Math.random() * this.speedVar + this.minSpeed;
+    this.dropSize = this.intitialDropSize;
     this.cnt = 0;
     this.speed = 0;
-    this.acceration = 0.05;
   }
 
   draw(context, wiperData) {
-    let isWiped = 0.7;
+    // drop status update
+    if (this.dropSize > this.minDropSize) this.dropSize = this.dropSize * 0.95;
     if (this.speed < this.maxSpeed) this.speed = this.acceration * (this.cnt / 50) * (this.cnt / 50);
+    if (this.y > this.canvasHeight) this.update();
     this.cnt++;
-    if (this.y > this.canvasHeight) {
-      this.update();
-    }
+    let isWiped = 0.7;
+    // movement by wiper
     const { sx, sy, ex, ey } = wiperData;
     let distance;
     if (sy === ey) {
@@ -52,12 +57,14 @@ export class DropOnWindow {
     } else {
       this.y += this.speed;
     }
-    context.strokeStyle = "rgb(0,0,0,0.2)";
+    // drop draw
+    context.strokeStyle = "rgb(0,0,0,0)";
     context.beginPath();
     context.arc(this.x, this.y, this.dropSize, 0, 2 * Math.PI);
     context.stroke();
-    context.fillStyle = `rgb(180,180,180,${isWiped})`;
+    context.fillStyle = "rgb(180,180,180,0.9)";
     context.fill();
+    // drop status return
     const data = {
       x: this.x,
       y: this.y,
@@ -71,6 +78,7 @@ export class DropOnWindow {
     this.y = Math.random() * this.canvasHeight;
     this.maxSpeed = Math.random() * this.speedVar + this.minSpeed;
     this.length = Math.random() * this.lengthVar + this.minLength;
+    this.dropSize = this.intitialDropSize;
     this.speed = 0;
     this.cnt = 0;
   }
