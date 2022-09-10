@@ -1,59 +1,22 @@
-export class DropOnAir {
-  constructor(index, canvasWidth, canvasHeight) {
-    this.index = index;
-    this.canvasWidth = canvasWidth;
-    this.canvasHeight = canvasHeight;
-    this.speedVar = canvasHeight / 150;
-    this.minSpeed = canvasHeight / 20;
-    this.lengthVar = canvasHeight / 30;
-    this.minLength = canvasHeight / 255;
-    this.x = Math.random() * this.canvasWidth;
-    this.y = Math.random() * this.canvasHeight;
-    this.speed = Math.random() * this.speedVar + this.minSpeed;
-    this.length = Math.random() * this.lengthVar + this.minLength;
-  }
-
-  draw(context) {
-    context.strokeStyle = "rgb(150,150,150)";
-    context.beginPath();
-    context.moveTo(this.x, this.y);
-    context.lineTo(this.x, this.y + this.length);
-    context.stroke();
-  }
-
-  update(context) {
-    this.y += this.speed;
-    if (this.y > this.canvasHeight) {
-      this.x = Math.random() * this.canvasWidth;
-      this.y = 0;
-      this.speed = Math.random() * this.speedVar + this.minSpeed;
-      this.length = Math.random() * this.lengthVar + this.minLength;
-    }
-    this.draw(context);
-  }
-}
-
 export class DropOnWindow {
   constructor(index, canvasWidth, canvasHeight) {
     this.index = index;
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
-    this.dropSize = Math.floor(canvasHeight / 60);
+    this.dropSize = canvasHeight / 100 >= 3 ? canvasHeight / 90 : 3;
     this.wiperThres = canvasWidth / 80;
     this.speedVar = canvasHeight / 500;
     this.minSpeed = canvasHeight / 400;
-    this.lengthVar = canvasHeight / 30;
-    this.minLength = canvasHeight / 500;
     this.x = Math.random() * this.canvasWidth;
     this.y = Math.random() * this.canvasHeight;
     this.maxSpeed = Math.random() * this.speedVar + this.minSpeed;
-    this.length = Math.random() * this.lengthVar + this.minLength;
     this.cnt = 0;
     this.speed = 0;
     this.acceration = 0.05;
   }
 
   draw(context, wiperData) {
+    let isWiped = 0.7;
     if (this.speed < this.maxSpeed) this.speed = this.acceration * (this.cnt / 50) * (this.cnt / 50);
     this.cnt++;
     if (this.y > this.canvasHeight) {
@@ -85,18 +48,22 @@ export class DropOnWindow {
         this.y += dy * 2;
       }
       this.y += this.speed / 5;
+      isWiped = 0.1;
     } else {
       this.y += this.speed;
     }
-    context.strokeStyle = "rgb(0,0,0,00.1)";
+    context.strokeStyle = "rgb(0,0,0,0.2)";
     context.beginPath();
     context.arc(this.x, this.y, this.dropSize, 0, 2 * Math.PI);
     context.stroke();
-    let grd = context.createRadialGradient(this.x - this.dropSize / 4, this.y - this.dropSize / 4, (this.dropSize / 12) & 7, this.x - this.dropSize / 4, this.y - this.dropSize / 4, this.dropSize);
-    grd.addColorStop(0, "rgb(255,255,255,0.3)");
-    grd.addColorStop(1, "rgb(50,50,50,0.5");
-    context.fillStyle = grd;
+    context.fillStyle = `rgb(180,180,180,${isWiped})`;
     context.fill();
+    const data = {
+      x: this.x,
+      y: this.y,
+      opacity: isWiped,
+    };
+    return data;
   }
 
   update() {
@@ -106,5 +73,41 @@ export class DropOnWindow {
     this.length = Math.random() * this.lengthVar + this.minLength;
     this.speed = 0;
     this.cnt = 0;
+  }
+}
+
+export class DropRemain {
+  constructor(index, canvasWidth, canvasHeight, remainDropNumber) {
+    this.index = index;
+    this.canvasWidth = canvasWidth;
+    this.canvasHeight = canvasHeight;
+    let remainNumber = Math.floor(this.index / remainDropNumber);
+    this.dropSize = (canvasHeight / 100) * (1 - Math.pow(0.85, remainNumber));
+    this.wiperThres = canvasWidth / 80;
+    this.x = -20;
+    this.y = -20;
+    this.opacity = 0;
+  }
+
+  draw(context, dropData) {
+    const { x, y, opacity } = dropData;
+    this.x = x;
+    this.y = y;
+    this.opacity = opacity * 0.9;
+    context.strokeStyle = "rgb(0,0,0,0)";
+    context.beginPath();
+    context.arc(this.x, this.y, this.dropSize, 0, Math.PI * 2);
+    context.stroke();
+    context.fillStyle = `rgb(180,180,180,${this.opacity})`;
+    context.fill();
+  }
+
+  getData() {
+    const data = {
+      x: this.x,
+      y: this.y,
+      opacity: this.opacity,
+    };
+    return data;
   }
 }

@@ -1,12 +1,13 @@
 import React from "react";
 import { useCanvas } from "../hooks/useCanvas";
-import { DropOnAir, DropOnWindow } from "./RainDrop";
+import { DropOnAir } from "./RainDropOnAir";
+import { DropOnWindow, DropRemain } from "./RainDropOnWindow";
 import Wiper from "./Wiper";
 
 const RainInCar = ({ canvasWidth, canvasHeight }) => {
   // Background
   const fillBackground = (context) => {
-    context.fillStyle = "rgb(100,100,100,0.3)";
+    context.fillStyle = "rgb(31,31,31,0.5)";
     context.fillRect(0, 0, canvasWidth, canvasHeight);
   };
 
@@ -50,9 +51,15 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
   }
 
   // RainDrop on Window
+  const dropNumber = canvasWidth < 500 ? 20 : 40;
   const windowDrops = [];
-  for (let i = 0; i < (canvasWidth < 500 ? 20 : 40); i++) {
+  for (let i = 0; i < dropNumber; i++) {
     windowDrops.push(new DropOnWindow(i, canvasWidth, canvasHeight));
+  }
+  const reaminDropNumber = 15;
+  const windowDropRemains = [];
+  for (let i = 0; i < dropNumber * (reaminDropNumber + 1); i++) {
+    windowDropRemains.push(new DropRemain(i, canvasWidth, canvasHeight, reaminDropNumber));
   }
 
   // Animation Render
@@ -72,8 +79,17 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
       }, ((wiperLimit * 4) / wiperVelocity / 60) * 1000);
     }
     let wiperData = wiper.animate(context, IsWiping);
+    // Rain Drop on Window Remains
+    for (let i = dropNumber; i < dropNumber * (reaminDropNumber + 1); i++) {
+      let dropData = windowDropRemains[i].getData();
+      windowDropRemains[i - dropNumber].draw(context, dropData);
+    }
     // Rain Drop on Window
-    windowDrops.forEach((drop) => drop.draw(context, wiperData));
+    windowDrops.forEach((drop, index) => {
+      let dropData = drop.draw(context, wiperData);
+      //   console.log(dropData);
+      windowDropRemains[reaminDropNumber * dropNumber + index].draw(context, dropData);
+    });
   };
 
   const canvasRef = useCanvas(canvasWidth, canvasHeight, animate);
