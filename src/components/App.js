@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import React, { useRef } from "react";
 import { useClientWidthHeight } from "../hooks/useClientWidthHeight";
 import "./App.css";
 import RainInCar from "./RainInCar";
@@ -17,7 +17,7 @@ function App() {
   }
 
   return (
-    <div className="App" ref={appRef}>
+    <div className="App" ref={appRef} style={{ flexDirection: "column" }}>
       <RainInCar canvasWidth={canvasWidth} canvasHeight={canvasHeight} />
     </div>
   );

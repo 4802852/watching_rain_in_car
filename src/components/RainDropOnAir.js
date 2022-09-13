@@ -21,9 +21,9 @@ export class DropOnAir {
     context.stroke();
   }
 
-  update(context) {
+  update(context, flag) {
     this.y += this.speed;
-    if (this.y > this.canvasHeight) {
+    if (flag && this.y > this.canvasHeight) {
       this.x = Math.random() * this.canvasWidth;
       this.y = 0;
       this.speed = Math.random() * this.speedVar + this.minSpeed;
@@ -32,4 +32,3 @@ export class DropOnAir {
     this.draw(context);
   }
 }
-
