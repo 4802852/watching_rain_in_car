@@ -3,68 +3,9 @@ import { useCanvas } from "../hooks/useCanvas";
 import { DropOnAir } from "./RainDropOnAir";
 import { DropOnWindow, DropRemain } from "./RainDropOnWindow";
 import Wiper from "./Wiper";
-import { Slider } from "antd";
+import "./RainInCar.css";
 
 const RainInCar = ({ canvasWidth, canvasHeight }) => {
-  // info definition
-  let frequency = 50;
-  let rainFall = 100;
-
-  // Drop Number Info
-  const dropNumberAir = canvasWidth < 500 ? 50 : 100;
-  let dropUpdateNumberAir;
-  const dropNumberWindow = canvasWidth < 500 ? 30 : 60;
-  let dropUpdateNumberWindow;
-  const setRainFall = (rainFall) => {
-    dropUpdateNumberAir = Math.floor(dropNumberAir * ((rainFall * 0.8 + 20) / 100));
-    dropUpdateNumberWindow = Math.floor(dropNumberWindow * ((rainFall * 0.8 + 20) / 100));
-  };
-  setRainFall(rainFall);
-
-  // Slider Change Function
-  const onFrequencyChange = (newValue) => {
-    setWiperInterval(newValue);
-    if (newValue === 0) isAuto = false;
-    else isAuto = true;
-  };
-
-  const onRainFallChange = (newValue) => {
-    setRainFall(newValue);
-  };
-
-  // Slider CSS
-  const markColor = "rgb(230,230,230,0.7)";
-
-  const frequencyMark = {
-    0: {
-      style: {
-        color: markColor,
-      },
-      label: <strong>0, Manual (Click To Wipe Out)</strong>,
-    },
-    100: {
-      style: {
-        color: markColor,
-      },
-      label: <strong>100</strong>,
-    },
-  };
-
-  const rainFallMark = {
-    0: {
-      style: {
-        color: markColor,
-      },
-      label: <strong>0</strong>,
-    },
-    100: {
-      style: {
-        color: markColor,
-      },
-      label: <strong>100</strong>,
-    },
-  };
-
   // Background
   const fillBackground = (context) => {
     context.fillStyle = "rgb(31,31,31,0.5)";
@@ -79,15 +20,16 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
   const wiperVelocity = 0.012;
   const wiperLimit = 0.5;
   const wiper = new Wiper(canvasWidth, canvasHeight, wiperVelocity, wiperLimit);
-
-  let wiperInterval;
-  const setWiperInterval = (frequency) => {
-    wiperInterval = ((wiperLimit * 4) / wiperVelocity / 60) * 1000 + 500 + (100 - frequency) * 40;
-  };
-  setWiperInterval(frequency);
+  const wiperInterval = ((wiperLimit * 4) / wiperVelocity / 60) * 1000 + +2000;
+  const checkbox = document.getElementById("autoCheck");
 
   const startWiping = () => {
-    if (!IsWiping && !isAuto) wipeStart();
+    if (isAuto) {
+      isAuto = false;
+      checkbox.checked = false;
+    } else {
+      if (!IsWiping) wipeStart();
+    }
   };
 
   const wipeStart = () => {
@@ -98,18 +40,23 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
   };
 
   const autoWipe = () => {
+    wipeStart();
     setTimeout(() => {
-      wipeStart();
       autoOn = false;
     }, wiperInterval);
+  };
+
+  const onChecked = (e) => {
+    if (isAuto) isAuto = false;
+    else isAuto = true;
+    checkbox.checked = isAuto;
   };
 
   // Window Blur
   const windowData = wiper.windowdata();
   const blurWindow = (context) => {
     const { centerX, centerY, minRadius, maxRadius, THETA } = windowData;
-    context.beginPath();
-    context.strokeStyle = "rgb(0,0,0, 0)";
+    context.strokeStyle = "rgb(200,200,200,0)";
     context.beginPath();
     context.moveTo(0, canvasHeight);
     context.lineTo(0, 0);
@@ -126,12 +73,14 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
   };
 
   // RainDrop on Air
+  const dropNumberAir = canvasWidth < 500 ? 50 : 100;
   const drops = [];
   for (let i = 0; i < dropNumberAir; i++) {
     drops.push(new DropOnAir(i, canvasWidth, canvasHeight));
   }
 
   // RainDrop on Window
+  const dropNumberWindow = canvasWidth < 500 ? 30 : 60;
   const windowDrops = [];
   for (let i = 0; i < dropNumberWindow; i++) {
     windowDrops.push(new DropOnWindow(i, canvasWidth, canvasHeight));
@@ -149,9 +98,9 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
     fillBackground(context);
     blurWindow(context);
     // Rain Drop
-    for (let i = 0; i < dropNumberAir; i++) {
-      drops[i].update(context, i <= dropUpdateNumberAir ? true : false);
-    }
+    drops.forEach((drop) => {
+      drop.update(context);
+    });
     // Wiper Movement
     if (isAuto && !autoOn) {
       autoOn = true;
@@ -165,7 +114,7 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
     }
     // Rain Drop on Window
     for (let i = 0; i < dropNumberWindow; i++) {
-      let dropData = windowDrops[i].draw(context, wiperData, i <= dropUpdateNumberWindow ? true : false);
+      let dropData = windowDrops[i].draw(context, wiperData);
       windowDropRemains[remainDropNumber * dropNumberWindow + i].draw(context, dropData);
     }
   };
@@ -174,11 +123,12 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
   return (
     <div style={{ display: "flex", position: "relative" }}>
       <canvas ref={canvasRef} onMouseDown={startWiping} style={{ background: "url(/image/background.jpeg)", backgroundSize: "cover" }} />
-      <div className="slider" style={{ bottom: "2rem", left: "1rem" }}>
-        <Slider marks={rainFallMark} vertical defaultValue={100} onChange={onRainFallChange} />
-      </div>
-      <div className="slider" style={{ bottom: "2rem", left: "5rem" }}>
-        <Slider marks={frequencyMark} vertical defaultValue={50} onChange={onFrequencyChange} />
+      <div className="checkboxGrid" style={{ bottom: "2rem", left: "1rem" }} onClick={onChecked}>
+        <input type="checkbox" id="autoCheck" defaultChecked onClick={onChecked} />
+        <label for="autoCheck"></label>
+        <span style={{ fontSize: "1rem", color: "rgba(200,200,200,0.7)", cursor: "default" }}>
+          <strong> Auto (Click to manually wipe out)</strong>
+        </span>
       </div>
     </div>
   );

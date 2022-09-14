@@ -19,11 +19,11 @@ export class DropOnWindow {
     this.speed = 0;
   }
 
-  draw(context, wiperData, flag) {
+  draw(context, wiperData) {
     // drop status update
     if (this.dropSize > this.minDropSize) this.dropSize = this.dropSize * 0.95;
     if (this.speed < this.maxSpeed) this.speed = this.acceration * (this.cnt / 50) * (this.cnt / 50);
-    if (flag && this.y > this.canvasHeight) this.update();
+    if (this.y > this.canvasHeight) this.update();
     this.cnt++;
     let isWiped = 0.7;
     // movement by wiper

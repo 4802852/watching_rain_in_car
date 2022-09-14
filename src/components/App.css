@@ -6,8 +6,8 @@
   justify-content: center;
 }
 
-.slider {
+.checkboxGrid {
   position: absolute;
-  height: 20%;
+  height: auto;
   width: auto;
 }
