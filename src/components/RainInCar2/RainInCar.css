@@ -1,0 +1,28 @@
+input[id="autoCheck"] {
+  display: none;
+}
+input[id="autoCheck"] + label {
+  display: inline-block;
+  position: relative;
+  padding-left: 26px;
+}
+input[id="autoCheck"] + label:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.4rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgba(200, 200, 200, 0.8);
+  box-sizing: border-box;
+}
+input[id="autoCheck"]:checked + label:after {
+  content: "";
+  position: absolute;
+  text-align: center;
+  left: 0;
+  bottom: -0.4rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: rgba(200, 200, 200, 0.8);
+}

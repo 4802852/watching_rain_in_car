@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { useClientWidthHeight } from "../hooks/useClientWidthHeight";
 import "./App.css";
-import RainInCar from "./RainInCar";
+import RainInCar from "./RainInCar2/RainInCar";
 
 function App() {
   const appRef = useRef(null);

@@ -10,7 +10,7 @@ input[id="autoCheck"] + label:before {
   content: "";
   position: absolute;
   left: 0;
-  bottom: -0.5rem;
+  bottom: -0.4rem;
   width: 1.5rem;
   height: 1.5rem;
   border: 2px solid rgba(200, 200, 200, 0.8);
@@ -21,7 +21,7 @@ input[id="autoCheck"]:checked + label:after {
   position: absolute;
   text-align: center;
   left: 0;
-  bottom: -0.5rem;
+  bottom: -0.4rem;
   width: 1.5rem;
   height: 1.5rem;
   background-color: rgba(200, 200, 200, 0.8);

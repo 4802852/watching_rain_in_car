@@ -1,5 +1,5 @@
 import React from "react";
-import { useCanvas } from "../hooks/useCanvas";
+import { useCanvas } from "../../hooks/useCanvas";
 import { DropOnAir } from "./RainDropOnAir";
 import { DropOnWindow, DropRemain } from "./RainDropOnWindow";
 import Wiper from "./Wiper";
