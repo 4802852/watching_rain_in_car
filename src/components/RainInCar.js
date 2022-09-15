@@ -1,5 +1,5 @@
 import React from "react";
-import { useCanvas } from "../../hooks/useCanvas";
+import { useCanvas } from "../hooks/useCanvas";
 import { DropOnAir } from "./RainDropOnAir";
 import { DropOnWindow, DropRemain } from "./RainDropOnWindow";
 import Wiper from "./Wiper";
@@ -15,34 +15,29 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
   // Wiper
   let IsWiping = false;
   let isAuto = true;
-  let autoOn = false;
+  let trigger = false;
+  let autoTrigger = false;
 
-  const wiperVelocity = 0.012;
+  const wiperVelocity = 0.01;
   const wiperLimit = 0.5;
   const wiper = new Wiper(canvasWidth, canvasHeight, wiperVelocity, wiperLimit);
-  const wiperInterval = ((wiperLimit * 4) / wiperVelocity / 60) * 1000 + +2000;
+  const wiperInterval = ((wiperLimit * 4) / wiperVelocity / 60) * 1000 + 3000;
   const checkbox = document.getElementById("autoCheck");
 
-  const startWiping = () => {
+  const handleClick = () => {
     if (isAuto) {
       isAuto = false;
       checkbox.checked = false;
-    } else {
-      if (!IsWiping) wipeStart();
     }
+    if (!IsWiping) wipeStart();
   };
 
-  const wipeStart = () => {
-    IsWiping = true;
-    setTimeout(() => {
-      IsWiping = false;
-    }, ((wiperLimit * 4) / wiperVelocity / 60) * 1000);
-  };
+  const wipeStart = () => (trigger = true);
 
   const autoWipe = () => {
     wipeStart();
     setTimeout(() => {
-      autoOn = false;
+      autoTrigger = false;
     }, wiperInterval);
   };
 
@@ -99,14 +94,17 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
     blurWindow(context);
     // Rain Drop
     drops.forEach((drop) => {
-      drop.update(context);
+      drop.draw(context);
     });
     // Wiper Movement
-    if (isAuto && !autoOn) {
-      autoOn = true;
+    if (isAuto && !autoTrigger) {
+      autoTrigger = true;
       autoWipe();
     }
-    let wiperData = wiper.animate(context, IsWiping);
+    let wiperData = wiper.animate(context, trigger);
+    trigger = false;
+    IsWiping = wiperData.isWiping;
+    let xydata = wiperData.xydata;
     // Rain Drop on Window Remains
     for (let i = dropNumberWindow; i < dropNumberWindow * (remainDropNumber + 1); i++) {
       let dropData = windowDropRemains[i].getData();
@@ -114,7 +112,7 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
     }
     // Rain Drop on Window
     for (let i = 0; i < dropNumberWindow; i++) {
-      let dropData = windowDrops[i].draw(context, wiperData);
+      let dropData = windowDrops[i].draw(context, xydata);
       windowDropRemains[remainDropNumber * dropNumberWindow + i].draw(context, dropData);
     }
   };
@@ -122,12 +120,12 @@ const RainInCar = ({ canvasWidth, canvasHeight }) => {
   const canvasRef = useCanvas(canvasWidth, canvasHeight, animate);
   return (
     <div style={{ display: "flex", position: "relative" }}>
-      <canvas ref={canvasRef} onMouseDown={startWiping} style={{ background: "url(/image/background.jpeg)", backgroundSize: "cover" }} />
+      <canvas ref={canvasRef} onMouseDown={handleClick} style={{ background: "url(/image/background.png)", backgroundSize: "cover" }} />
       <div className="checkboxGrid" style={{ bottom: "2rem", left: "1rem" }} onClick={onChecked}>
         <input type="checkbox" id="autoCheck" defaultChecked onClick={onChecked} />
         <label for="autoCheck"></label>
         <span style={{ fontSize: "1rem", color: "rgba(200,200,200,0.7)", cursor: "default" }}>
-          <strong> Auto (Click to manually wipe out)</strong>
+          <strong> Auto</strong>
         </span>
       </div>
     </div>

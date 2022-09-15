@@ -14,21 +14,19 @@ export class DropOnAir {
   }
 
   draw(context) {
-    context.strokeStyle = "rgb(150,150,150)";
+    this.y += this.speed;
+    if (this.y > this.canvasHeight) this.update();
+    context.strokeStyle = "rgb(150,150,150,0.9)";
     context.beginPath();
     context.moveTo(this.x, this.y);
     context.lineTo(this.x, this.y + this.length);
     context.stroke();
   }
 
-  update(context) {
-    this.y += this.speed;
-    if (this.y > this.canvasHeight) {
-      this.x = Math.random() * this.canvasWidth;
-      this.y = 0;
-      this.speed = Math.random() * this.speedVar + this.minSpeed;
-      this.length = Math.random() * this.lengthVar + this.minLength;
-    }
-    this.draw(context);
+  update() {
+    this.x = Math.random() * this.canvasWidth;
+    this.y = 0;
+    this.speed = Math.random() * this.speedVar + this.minSpeed;
+    this.length = Math.random() * this.lengthVar + this.minLength;
   }
 }

@@ -8,11 +8,11 @@ export class Wiper {
     this.wiperThickness = canvasWidth / 80;
     this.VELOCITY = wiperVelocity;
     this.LIMIT = wiperLimit;
-    this.THETA = Math.PI / 2 - this.LIMIT;
-    this.REVERSE = 1;
+    this.theta = Math.PI / 2 - this.LIMIT;
+    this.direction = 0;
   }
 
-  drawWiper(context, theta = this.THETA) {
+  drawWiper(context, theta = this.theta) {
     let start_angle = Math.PI / 2 - theta;
     let sx, sy, ex, ey;
     sx = this.centerX + this.minRadius * Math.cos(theta);
@@ -27,21 +27,35 @@ export class Wiper {
     context.stroke();
     context.fillStyle = "rgb(0,0,0,0.8)";
     context.fill();
-    const wiperData = { sx: sx, sy: sy, ex: ex, ey: ey };
-    return wiperData;
+    const xydata = { sx: sx, sy: sy, ex: ex, ey: ey };
+    return xydata;
   }
 
-  animate(context, flag) {
-    if (flag) {
-      this.THETA += this.VELOCITY * this.REVERSE;
-      if (this.THETA >= Math.PI / 2 + this.LIMIT) {
-        this.REVERSE *= -1;
-      }
-    } else {
-      this.THETA = Math.PI / 2 - this.LIMIT;
-      this.REVERSE = 1;
+  animate(context, trigger) {
+    let isWiping;
+    if (trigger) this.direction = 1;
+    switch (this.direction) {
+      case 1:
+        if (this.theta >= Math.PI / 2 + this.LIMIT) this.direction = -1;
+        isWiping = true;
+        break;
+
+      case -1:
+        if (this.theta < Math.PI / 2 - this.LIMIT) this.direction = 0;
+        isWiping = true;
+        break;
+
+      case 0:
+        this.theta = Math.PI / 2 - this.LIMIT;
+        isWiping = false;
+        break;
+
+      default:
+        break;
     }
-    const wiperData = this.drawWiper(context, this.THETA);
+    this.theta += this.VELOCITY * this.direction;
+    const xydata = this.drawWiper(context, this.theta);
+    const wiperData = { isWiping, xydata };
     return wiperData;
   }
 
@@ -51,7 +65,7 @@ export class Wiper {
       centerY: this.centerY,
       minRadius: this.minRadius,
       maxRadius: this.maxRadius,
-      THETA: this.THETA,
+      THETA: this.theta,
     };
     return data;
   }
